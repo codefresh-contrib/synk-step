@@ -1,0 +1,59 @@
+version: '1.0'
+kind: step-type
+metadata:
+  name: csdp-salesdemo/synk
+  version: 0.0.7
+  title: Scan containers using SNYK CLI 
+  isPublic: true
+  description: Scan your docker images
+  sources:
+    - 'https://github.com/codefresh-io/steps/tree/master/incubating/vault'
+  maintainers:
+    - name: Anthony Rozario
+  icon:
+    type: svg
+    url: 'https://cdn.jsdelivr.net/gh/codefresh-io/steps/incubating/vault/icon.svg'
+    background: '#f4f4f4'
+  examples:
+    - description: Token Authentication
+      workflow:
+        Scan_Image:
+          title: Importing vault values
+          type: snyk
+          arguments:
+            SNYK_API_KEY: '${{VAULT_ADDR}}'
+            IMAGE_NAME: '${{DOCKER_REGISTRY}}/${{MICROSERVICE_NAME}}:${{CF_SHORT_REVISION}}'
+
+spec:
+  arguments: |-
+    {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "additionalProperties": false,
+        "patterns": [],
+        "required": [
+          "SNYK_API_KEY",
+          "IMAGE_NAME"
+        ],
+        "properties": {
+            "SYNK_API_KEY": {
+                "type": "string",
+                "description": "Vault server URI. Example: https://vault.testdomain.io:8200 (required)"
+            },
+            "IMAGE_NAME": {
+                "type": "string",
+                "description": "Path to secrets in vault. Example: secret/codefreshsecret (required)"
+            }
+        }
+    }
+  steps:
+    main:
+      name: snyk
+      image: salesdemosa/synk
+      environment:
+        - 'API_KEY=${{SYNK_API_KEY}}'
+        - 'IMAGE=${{IMAGE_NAME}}'
+      command: 
+        - "snyk auth ${{API_KEY}}" 
+        - "snyk container test ${{IMAGE}}" 
